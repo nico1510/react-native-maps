@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -556,7 +557,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   public void animateToRegion(LatLngBounds bounds, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0), duration, null);
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(bounds.getCenter(), 15.f, 45, 0)), duration, null);
     }
   }
 
@@ -639,7 +640,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
 
     LatLngBounds bounds = builder.build();
-    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, baseMapPadding);
+    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, 45, 0, getResources().getDisplayMetrics()));
 
     if (edgePadding != null) {
       map.setPadding(edgePadding.getInt("left"), edgePadding.getInt("top"),
