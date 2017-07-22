@@ -13,7 +13,7 @@
 
 @implementation GMSCameraPositionUtils
 
-
+// https://stackoverflow.com/a/14231286
 - (CLLocationCoordinate2D)getCenter:(GMSCoordinateBounds *)bounds {
 
     CGFloat neLatitude = bounds.northEast.latitude * M_PI / 180;
