@@ -84,7 +84,7 @@ RCT_EXPORT_METHOD(animateToRegion:(nonnull NSNumber *)reactTag
       [CATransaction begin];
       [CATransaction setAnimationDuration:duration/1000];
       AIRGoogleMap *mapView = (AIRGoogleMap *)view;
-      GMSCameraPosition *camera = [AIRGoogleMap makeGMSCameraPositionFromMap:mapView andMKCoordinateRegion:region];
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:region.center zoom:15.5 bearing:0 viewingAngle:67.5];
       [mapView animateToCameraPosition:camera];
       [CATransaction commit];
     }
