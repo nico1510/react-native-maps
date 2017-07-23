@@ -557,7 +557,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   public void animateToRegion(LatLngBounds bounds, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(bounds.getCenter(), 15.f, 45, 0)), duration, null);
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(bounds.getCenter(), map.getCameraPosition().zoom, 67.5f, 0)), duration, null);
     }
   }
 
@@ -640,7 +640,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
 
     LatLngBounds bounds = builder.build();
-    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, 45, 0, getResources().getDisplayMetrics()));
+    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, 67.5f, 0));
 
     if (edgePadding != null) {
       map.setPadding(edgePadding.getInt("left"), edgePadding.getInt("top"),
