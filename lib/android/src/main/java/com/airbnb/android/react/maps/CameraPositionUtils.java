@@ -24,8 +24,8 @@ public class CameraPositionUtils {
 
     private static float getBoundsZoomLevel(LatLngBounds bounds, float mapWidthPx, float mapHeightPx) {
 
-        final int WORLD_DP_HEIGHT = 256;
-        final int WORLD_DP_WIDTH = 256;
+        final int WORLD_DP_HEIGHT = dpToPx(256);
+        final int WORLD_DP_WIDTH = dpToPx(256);
         final int ZOOM_MAX = 21;
         LatLng ne = bounds.northeast;
         LatLng sw = bounds.southwest;
