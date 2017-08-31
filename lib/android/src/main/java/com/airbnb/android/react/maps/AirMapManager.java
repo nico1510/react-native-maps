@@ -202,6 +202,8 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     Double lngDelta;
     Double latDelta;
     Double zoomLevel;
+    Double tiltAngle;
+    Double bearing;
     ReadableMap region;
 
     switch (commandId) {
@@ -225,7 +227,9 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
         lng = region.getDouble("longitude");
         lat = region.getDouble("latitude");
         zoomLevel = region.getDouble("zoomLevel");
-        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), duration);
+        tiltAngle = region.getDouble("tiltAngle");
+        bearing = region.getDouble("bearing");
+        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), tiltAngle.floatValue(), bearing.floatValue(), duration);
         break;
 
       case FIT_TO_ELEMENTS:

@@ -571,10 +571,10 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
-  public void animateToCoordinate(LatLng coordinate, float zoomLevel, int duration) {
+  public void animateToCoordinate(LatLng coordinate, float zoomLevel, float tiltAngle, float bearing, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(coordinate, zoomLevel, 67.5f, 0)), duration, null);
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(coordinate, zoomLevel, tiltAngle, bearing)), duration, null);
     }
   }
 
@@ -638,7 +638,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
-  public void fitToCoordinates(ReadableArray coordinatesArray, ReadableMap edgePadding,
+  public void fitToCoordinates(ReadableArray coordinatesArray, ReadableMap options,
       boolean animated) {
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -649,12 +649,14 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       builder.include(new LatLng(lat, lng));
     }
 
-    LatLngBounds bounds = builder.build();
-    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, 67.5f, 0));
+    Double tiltAngle = options.getDouble("tiltAngle");
 
-    if (edgePadding != null) {
-      map.setPadding(edgePadding.getInt("left"), edgePadding.getInt("top"),
-          edgePadding.getInt("right"), edgePadding.getInt("bottom"));
+    LatLngBounds bounds = builder.build();
+    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, tiltAngle.floatValue(), map.getCameraPosition().bearing));
+
+    if (options != null) {
+      map.setPadding(options.getInt("left"), options.getInt("top"),
+          options.getInt("right"), options.getInt("bottom"));
     }
 
     if (animated) {
