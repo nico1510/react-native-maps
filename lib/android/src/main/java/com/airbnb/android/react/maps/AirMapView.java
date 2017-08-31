@@ -567,14 +567,14 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   public void animateToRegion(LatLngBounds bounds, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(bounds.getCenter(), map.getCameraPosition().zoom, 67.5f, 0)), duration, null);
+      map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0), duration, null);
     }
   }
 
-  public void animateToCoordinate(LatLng coordinate, int duration) {
+  public void animateToCoordinate(LatLng coordinate, float zoomLevel, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newLatLng(coordinate), duration, null);
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(coordinate, zoomLevel, 67.5f, 0)), duration, null);
     }
   }
 

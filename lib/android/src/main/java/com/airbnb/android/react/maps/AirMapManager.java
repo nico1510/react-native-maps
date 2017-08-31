@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
+import com.facebook.react.devsupport.DoubleTapReloadRecognizer;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -200,6 +201,7 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     Double lng;
     Double lngDelta;
     Double latDelta;
+    Double zoomLevel;
     ReadableMap region;
 
     switch (commandId) {
@@ -222,7 +224,8 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
         duration = args.getInt(1);
         lng = region.getDouble("longitude");
         lat = region.getDouble("latitude");
-        view.animateToCoordinate(new LatLng(lat, lng), duration);
+        zoomLevel = region.getDouble("zoomLevel");
+        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), duration);
         break;
 
       case FIT_TO_ELEMENTS:
