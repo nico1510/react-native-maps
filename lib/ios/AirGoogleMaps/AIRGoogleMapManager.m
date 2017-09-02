@@ -84,7 +84,7 @@ RCT_EXPORT_METHOD(animateToRegion:(nonnull NSNumber *)reactTag
       [CATransaction begin];
       [CATransaction setAnimationDuration:duration/1000];
       AIRGoogleMap *mapView = (AIRGoogleMap *)view;
-      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:region.center zoom:15.5 bearing:0 viewingAngle:67.5];
+      GMSCameraPosition *camera = [AIRGoogleMap makeGMSCameraPositionFromMap:mapView andMKCoordinateRegion:region];
       [mapView animateToCameraPosition:camera];
       [CATransaction commit];
     }
@@ -92,7 +92,7 @@ RCT_EXPORT_METHOD(animateToRegion:(nonnull NSNumber *)reactTag
 }
 
 RCT_EXPORT_METHOD(animateToCoordinate:(nonnull NSNumber *)reactTag
-                  withRegion:(CLLocationCoordinate2D)latlng
+                  withRegion:(nonnull NSDictionary *)info
                   withDuration:(CGFloat)duration)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
@@ -102,7 +102,13 @@ RCT_EXPORT_METHOD(animateToCoordinate:(nonnull NSNumber *)reactTag
     } else {
       [CATransaction begin];
       [CATransaction setAnimationDuration:duration/1000];
-      [(AIRGoogleMap *)view animateToLocation:latlng];
+      CLLocationCoordinate2D latLng = CLLocationCoordinate2DMake([RCTConvert CGFloat:info[@"latitude"]], [RCTConvert CGFloat:info[@"longitude"]]);
+      CGFloat zoomLevel = [RCTConvert CGFloat:info[@"zoomLevel"]];
+      CGFloat bearing = [RCTConvert CGFloat:info[@"bearing"]];
+      CGFloat tiltAngle = [RCTConvert CGFloat:info[@"tiltAngle"]];
+      AIRGoogleMap *mapView = (AIRGoogleMap *)view;
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:latLng zoom:zoomLevel bearing:bearing viewingAngle:tiltAngle];
+      [mapView animateToCameraPosition:camera];
       [CATransaction commit];
     }
   }];
