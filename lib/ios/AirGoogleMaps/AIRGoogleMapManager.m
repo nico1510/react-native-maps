@@ -183,16 +183,11 @@ RCT_EXPORT_METHOD(fitToCoordinates:(nonnull NSNumber *)reactTag
       for (AIRMapCoordinate *coordinate in coordinates)
         bounds = [bounds includingCoordinate:coordinate.coordinate];
 
-      // Set Map viewport
-      CGFloat top = [RCTConvert CGFloat:info[@"top"]];
-      CGFloat right = [RCTConvert CGFloat:info[@"right"]];
-      CGFloat bottom = [RCTConvert CGFloat:info[@"bottom"]];
-      CGFloat left = [RCTConvert CGFloat:info[@"left"]];
-
       CLLocationCoordinate2D center = [GMSCameraPositionUtils getCenter: bounds];
       CGFloat tiltAngle = [RCTConvert CGFloat:info[@"tiltAngle"]];
+      CGFloat zoomLevel = [GMSCameraPositionUtils getBoundsZoomLevel:bounds withMapWidthPx:mapView.frame.size.width withMapHeightPx:mapView.frame.size.height];
 
-      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:center zoom:15 bearing:0 viewingAngle:tiltAngle];
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:center zoom:zoomLevel bearing:0 viewingAngle:tiltAngle];
       [mapView animateToCameraPosition:camera];
     }
   }];

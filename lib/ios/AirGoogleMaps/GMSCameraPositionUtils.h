@@ -11,4 +11,8 @@
 
 @interface GMSCameraPositionUtils : NSObject
 + (CLLocationCoordinate2D)getCenter:(GMSCoordinateBounds *)bounds;
+
++ (CGFloat)getBoundsZoomLevel:(GMSCoordinateBounds *)bounds
+               withMapWidthPx:(CGFloat) mapWidthPx
+              withMapHeightPx:(CGFloat) mapHeightPx;
 @end
