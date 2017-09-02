@@ -24,6 +24,7 @@
 #import "SMCalloutView.h"
 #import "AIRGoogleMapMarker.h"
 #import "RCTConvert+AirMap.h"
+#import "GMSCameraPositionUtils.h"
 
 #import <MapKit/MapKit.h>
 #import <QuartzCore/QuartzCore.h>
@@ -166,7 +167,7 @@ RCT_EXPORT_METHOD(fitToSuppliedMarkers:(nonnull NSNumber *)reactTag
 
 RCT_EXPORT_METHOD(fitToCoordinates:(nonnull NSNumber *)reactTag
                   coordinates:(nonnull NSArray<AIRMapCoordinate *> *)coordinates
-                  edgePadding:(nonnull NSDictionary *)edgePadding
+                  edgePadding:(nonnull NSDictionary *)info
                   animated:(BOOL)animated)
 {
   [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
@@ -183,12 +184,16 @@ RCT_EXPORT_METHOD(fitToCoordinates:(nonnull NSNumber *)reactTag
         bounds = [bounds includingCoordinate:coordinate.coordinate];
 
       // Set Map viewport
-      CGFloat top = [RCTConvert CGFloat:edgePadding[@"top"]];
-      CGFloat right = [RCTConvert CGFloat:edgePadding[@"right"]];
-      CGFloat bottom = [RCTConvert CGFloat:edgePadding[@"bottom"]];
-      CGFloat left = [RCTConvert CGFloat:edgePadding[@"left"]];
+      CGFloat top = [RCTConvert CGFloat:info[@"top"]];
+      CGFloat right = [RCTConvert CGFloat:info[@"right"]];
+      CGFloat bottom = [RCTConvert CGFloat:info[@"bottom"]];
+      CGFloat left = [RCTConvert CGFloat:info[@"left"]];
 
-      [mapView animateWithCameraUpdate:[GMSCameraUpdate fitBounds:bounds withEdgeInsets:UIEdgeInsetsMake(top, left, bottom, right)]];
+      CLLocationCoordinate2D center = [GMSCameraPositionUtils getCenter: bounds];
+      CGFloat tiltAngle = [RCTConvert CGFloat:info[@"tiltAngle"]];
+
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:center zoom:15 bearing:0 viewingAngle:tiltAngle];
+      [mapView animateToCameraPosition:camera];
     }
   }];
 }

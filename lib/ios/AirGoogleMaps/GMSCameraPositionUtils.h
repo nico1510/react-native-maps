@@ -10,5 +10,5 @@
 #import "RCTConvert+GMSMapViewType.h"
 
 @interface GMSCameraPositionUtils : NSObject
-- (CLLocationCoordinate2D)getCenter:(GMSCoordinateBounds *)bounds;
++ (CLLocationCoordinate2D)getCenter:(GMSCoordinateBounds *)bounds;
 @end
