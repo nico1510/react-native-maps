@@ -30,9 +30,11 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   private static final String REACT_CLASS = "AIRMap";
   private static final int ANIMATE_TO_REGION = 1;
   private static final int ANIMATE_TO_COORDINATE = 2;
-  private static final int FIT_TO_ELEMENTS = 3;
-  private static final int FIT_TO_SUPPLIED_MARKERS = 4;
-  private static final int FIT_TO_COORDINATES = 5;
+  private static final int ANIMATE_TO_VIEWING_ANGLE = 3;
+  private static final int ANIMATE_TO_BEARING = 4;
+  private static final int FIT_TO_ELEMENTS = 5;
+  private static final int FIT_TO_SUPPLIED_MARKERS = 6;
+  private static final int FIT_TO_COORDINATES = 7;
 
   private final Map<String, Integer> MAP_TYPES = MapBuilder.of(
       "standard", GoogleMap.MAP_TYPE_NORMAL,
@@ -202,7 +204,7 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     Double lngDelta;
     Double latDelta;
     Double zoomLevel;
-    Double tiltAngle;
+    Double angle;
     Double bearing;
     ReadableMap region;
 
@@ -227,11 +229,23 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
         lng = region.getDouble("longitude");
         lat = region.getDouble("latitude");
         zoomLevel = region.getDouble("zoomLevel");
-        tiltAngle = region.getDouble("tiltAngle");
+        angle = region.getDouble("angle");
         bearing = region.getDouble("bearing");
-        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), tiltAngle.floatValue(), bearing.floatValue(), duration);
+        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), angle.floatValue(), bearing.floatValue(), duration);
         break;
 
+      case ANIMATE_TO_VIEWING_ANGLE:
+        angle = args.getDouble(0);
+        duration = args.getInt(1);
+        view.animateToViewingAngle(angle.floatValue(), duration);
+        break;
+      
+      case ANIMATE_TO_BEARING:
+        bearing = args.getDouble(0);
+        duration = args.getInt(1);
+        view.animateToBearing(bearing.floatValue(), duration);
+        break;
+      
       case FIT_TO_ELEMENTS:
         view.fitToElements(args.getBoolean(0));
         break;
@@ -274,6 +288,8 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     return MapBuilder.of(
         "animateToRegion", ANIMATE_TO_REGION,
         "animateToCoordinate", ANIMATE_TO_COORDINATE,
+        "animateToViewingAngle", ANIMATE_TO_VIEWING_ANGLE,
+        "animateToBearing", ANIMATE_TO_BEARING,
         "fitToElements", FIT_TO_ELEMENTS,
         "fitToSuppliedMarkers", FIT_TO_SUPPLIED_MARKERS,
         "fitToCoordinates", FIT_TO_COORDINATES
