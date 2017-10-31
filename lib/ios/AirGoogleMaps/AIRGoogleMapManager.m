@@ -107,9 +107,9 @@ RCT_EXPORT_METHOD(animateToCoordinate:(nonnull NSNumber *)reactTag
       CLLocationCoordinate2D latLng = CLLocationCoordinate2DMake([RCTConvert CGFloat:info[@"latitude"]], [RCTConvert CGFloat:info[@"longitude"]]);
       CGFloat zoomLevel = [RCTConvert CGFloat:info[@"zoomLevel"]];
       CGFloat bearing = [RCTConvert CGFloat:info[@"bearing"]];
-      CGFloat tiltAngle = [RCTConvert CGFloat:info[@"tiltAngle"]];
+      CGFloat angle = [RCTConvert CGFloat:info[@"angle"]];
       AIRGoogleMap *mapView = (AIRGoogleMap *)view;
-      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:latLng zoom:zoomLevel bearing:bearing viewingAngle:tiltAngle];
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:latLng zoom:zoomLevel bearing:bearing viewingAngle:angle];
       [mapView animateToCameraPosition:camera];
       [CATransaction commit];
     }
@@ -221,10 +221,10 @@ RCT_EXPORT_METHOD(fitToCoordinates:(nonnull NSNumber *)reactTag
         bounds = [bounds includingCoordinate:coordinate.coordinate];
 
       CLLocationCoordinate2D center = [GMSCameraPositionUtils getCenter: bounds];
-      CGFloat tiltAngle = [RCTConvert CGFloat:info[@"tiltAngle"]];
+      CGFloat angle = [RCTConvert CGFloat:info[@"angle"]];
       CGFloat zoomLevel = [GMSCameraPositionUtils getBoundsZoomLevel:bounds withMapWidthPx:mapView.frame.size.width withMapHeightPx:mapView.frame.size.height];
 
-      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:center zoom:zoomLevel bearing:0 viewingAngle:tiltAngle];
+      GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:center zoom:zoomLevel bearing:0 viewingAngle:angle];
       [mapView animateToCameraPosition:camera];
     }
   }];
