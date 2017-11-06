@@ -592,10 +592,10 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
-  public void animateToCoordinate(LatLng coordinate, float zoomLevel, float tiltAngle, float bearing, int duration) {
+  public void animateToCoordinate(LatLng coordinate, float zoomLevel, float angle, float bearing, int duration) {
     if (map != null) {
       startMonitoringRegion();
-      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(coordinate, zoomLevel, tiltAngle, bearing)), duration, null);
+      map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedLatLngPosition(coordinate, zoomLevel, angle, bearing)), duration, null);
     }
   }
 
@@ -670,10 +670,10 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       builder.include(new LatLng(lat, lng));
     }
 
-    Double tiltAngle = options.getDouble("tiltAngle");
+    Double angle = options.getDouble("angle");
 
     LatLngBounds bounds = builder.build();
-    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, tiltAngle.floatValue(), map.getCameraPosition().bearing));
+    CameraUpdate cu = CameraUpdateFactory.newCameraPosition(CameraPositionUtils.tiltedRegionPosition(bounds, angle.floatValue(), map.getCameraPosition().bearing));
 
     if (options != null) {
       map.setPadding(options.getInt("left"), options.getInt("top"),
