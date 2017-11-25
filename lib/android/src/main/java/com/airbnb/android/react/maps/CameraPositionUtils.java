@@ -26,6 +26,8 @@ public class CameraPositionUtils {
 
         final int WORLD_DP_HEIGHT = dpToPx(256);
         final int WORLD_DP_WIDTH = dpToPx(256);
+        final int verticalPadding = 20;
+        final int horizontalPadding = 20;
         final int ZOOM_MAX = 21;
         LatLng ne = bounds.northeast;
         LatLng sw = bounds.southwest;
@@ -35,8 +37,8 @@ public class CameraPositionUtils {
         double lngDiff = ne.longitude - sw.longitude;
         double lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
-        float latZoom = zoom(mapHeightPx, WORLD_DP_HEIGHT, latFraction);
-        float lngZoom = zoom(mapWidthPx, WORLD_DP_WIDTH, lngFraction);
+        float latZoom = zoom(mapHeightPx - verticalPadding, WORLD_DP_HEIGHT, latFraction);
+        float lngZoom = zoom(mapWidthPx - horizontalPadding, WORLD_DP_WIDTH, lngFraction);
 
         float result = Math.min(latZoom, lngZoom);
         return Math.min(result, ZOOM_MAX);

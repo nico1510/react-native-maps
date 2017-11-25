@@ -35,6 +35,8 @@
     CGFloat WORLD_DP_HEIGHT = 256;
     CGFloat WORLD_DP_WIDTH = 256;
     CGFloat ZOOM_MAX = 21;
+    CGFloat paddingVertical = 20;
+    CGFloat paddingHorizontal = 20;
     CLLocationCoordinate2D ne = bounds.northEast;
     CLLocationCoordinate2D sw = bounds.southWest;
 
@@ -43,8 +45,8 @@
     double lngDiff = ne.longitude - sw.longitude;
     double lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
-    float latZoom = [[self class] zoom:mapHeightPx withWorldPx:WORLD_DP_HEIGHT withFraction:latFraction];
-    float lngZoom = [[self class] zoom:mapWidthPx withWorldPx:WORLD_DP_WIDTH withFraction:lngFraction];
+    float latZoom = [[self class] zoom:(mapHeightPx - paddingVertical) withWorldPx:WORLD_DP_HEIGHT withFraction:latFraction];
+    float lngZoom = [[self class] zoom:(mapWidthPx - paddingHorizontal) withWorldPx:WORLD_DP_WIDTH withFraction:lngFraction];
 
     float result = MIN(latZoom, lngZoom);
     return MIN(result, ZOOM_MAX);
