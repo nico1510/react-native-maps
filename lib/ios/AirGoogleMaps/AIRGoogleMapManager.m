@@ -64,6 +64,7 @@ RCT_EXPORT_VIEW_PROPERTY(showsUserLocation, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(showsMyLocationButton, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(showsIndoorLevelPicker, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(customMapStyleString, NSString)
+RCT_EXPORT_VIEW_PROPERTY(mapPadding, UIEdgeInsets)
 RCT_EXPORT_VIEW_PROPERTY(onMapReady, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onLongPress, RCTBubblingEventBlock)
@@ -296,6 +297,24 @@ RCT_EXPORT_METHOD(takeSnapshot:(nonnull NSNumber *)reactTag
     
     }
     UIGraphicsEndImageContext();
+  }];
+}
+
+RCT_EXPORT_METHOD(setMapBoundaries:(nonnull NSNumber *)reactTag
+                  northEast:(CLLocationCoordinate2D)northEast
+                  southWest:(CLLocationCoordinate2D)southWest)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[AIRGoogleMap class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting AIRGoogleMap, got: %@", view);
+    } else {
+      AIRGoogleMap *mapView = (AIRGoogleMap *)view;
+
+      GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:northEast coordinate:southWest];
+
+      mapView.cameraTargetBounds = bounds;
+    }
   }];
 }
 
