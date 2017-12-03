@@ -16,12 +16,13 @@
 #import <React/UIView+React.h>
 #import "RCTConvert+AirMap.h"
 
-id regionAsJSON(MKCoordinateRegion region) {
+id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
   return @{
            @"latitude": [NSNumber numberWithDouble:region.center.latitude],
            @"longitude": [NSNumber numberWithDouble:region.center.longitude],
            @"latitudeDelta": [NSNumber numberWithDouble:region.span.latitudeDelta],
            @"longitudeDelta": [NSNumber numberWithDouble:region.span.longitudeDelta],
+           @"bearing": bearing,
            };
 }
 
@@ -206,7 +207,7 @@ id regionAsJSON(MKCoordinateRegion region) {
 
 - (void)didChangeCameraPosition:(GMSCameraPosition *)position {
   id event = @{@"continuous": @YES,
-               @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position]),
+               @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position], [NSNumber numberWithDouble:position.bearing]),
                };
 
   if (self.onChange) self.onChange(event);
@@ -214,7 +215,7 @@ id regionAsJSON(MKCoordinateRegion region) {
 
 - (void)idleAtCameraPosition:(GMSCameraPosition *)position {
   id event = @{@"continuous": @NO,
-               @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position]),
+               @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position], [NSNumber numberWithDouble:position.bearing]),
                };
   if (self.onChange) self.onChange(event);  // complete
 }
