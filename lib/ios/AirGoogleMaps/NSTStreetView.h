@@ -8,8 +8,10 @@
 #import <React/RCTComponent.h>
 #import <GoogleMaps/GoogleMaps.h>
 
-@interface RNTMapView: GMSPanoramaView
+@interface NSTStreetView: GMSPanoramaView
 
 @property (nonatomic, copy) RCTBubblingEventBlock onPositionChange;
+
+- (void)didChangePosition:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude andBearing:(CGFloat) bearing andIsStreetviewAvailable:(BOOL)isStreetviewAvailable;
 
 @end
