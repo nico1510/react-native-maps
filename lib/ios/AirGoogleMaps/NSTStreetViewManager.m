@@ -24,7 +24,7 @@ RCT_EXPORT_MODULE()
 RCT_CUSTOM_VIEW_PROPERTY(coordinate, CLLocationCoordinate, GMSPanoramaView) {
     if (json == nil) return;
 
-  [view moveNearCoordinate:[RCTConvert CLLocationCoordinate2D:json]];
+    [view moveNearCoordinate:[RCTConvert CLLocationCoordinate2D:json] radius:100];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(allGesturesEnabled, BOOL)
