@@ -13,5 +13,6 @@
 @property (nonatomic, copy) RCTBubblingEventBlock onPositionChange;
 
 - (void)didChangePosition:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude andBearing:(CGFloat) bearing andIsStreetviewAvailable:(BOOL)isStreetviewAvailable;
+- (void)updateMarker:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude;
 
 @end
