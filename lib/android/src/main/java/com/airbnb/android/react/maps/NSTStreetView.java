@@ -17,8 +17,6 @@ import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.functions.Consumer;
