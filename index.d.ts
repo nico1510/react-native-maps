@@ -52,12 +52,12 @@ interface MapViewProps {
     maxZoomLevel?: number;
 }
 
-declare class MapView extends React.Component<MapViewProps, any> {
+export class MapView extends React.Component<MapViewProps, any> {
     static Animated: any;
     static AnimatedRegion: any;
 }
 
-declare namespace MapView {
+export namespace MapView {
 
     type LineCapType = 'butt' | 'round' | 'square';
     type LineJoinType = 'miter' | 'round' | 'bevel';
@@ -147,12 +147,34 @@ declare namespace MapView {
         style?: any;
     }
 
-    export class Marker extends React.Component<MarkerProps, any> {}
-    export class Polyline extends React.Component<MapPolylineProps, any> {}
-    export class Polygon extends React.Component<MapPolygonProps, any> {}
-    export class Circle extends React.Component<MapCircleProps, any> {}
-    export class UrlTile extends React.Component<MapUrlTitleProps, any> {}
-    export class Callout extends React.Component<MapCalloutProps, any> {}
+    export class Marker extends React.Component<MarkerProps, any> { }
+    export class Polyline extends React.Component<MapPolylineProps, any> { }
+    export class Polygon extends React.Component<MapPolygonProps, any> { }
+    export class Circle extends React.Component<MapCircleProps, any> { }
+    export class UrlTile extends React.Component<MapUrlTitleProps, any> { }
+    export class Callout extends React.Component<MapCalloutProps, any> { }
 }
 
-export = MapView;
+interface PositionChangeEvent {
+    position: {
+        isStreetviewAvailable: boolean;
+        latitude: number;
+        longitude: number;
+        bearing: number;
+    }
+}
+
+interface StreetViewProps {
+    style: any;
+    allGesturesEnabled: boolean;
+    coordinate: {
+        latitude: number;
+        longitude: number;
+        bearing: number;
+    }
+    onPositionChange: (event: PositionChangeEvent) => void
+}
+
+export class StreetView extends React.Component<StreetViewProps, any> {
+
+}
