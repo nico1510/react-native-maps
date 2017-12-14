@@ -114,7 +114,7 @@ public class NSTStreetView extends StreetViewPanoramaView implements OnStreetVie
             @Override
             public void onStreetViewPanoramaCameraChange(StreetViewPanoramaCamera camera) {
                 if(camera == null || panorama.getLocation() == null || panorama.getLocation().position == null)  return;
-                Params params = new Params(panorama.getLocation().position.latitude, panorama.getLocation().position.longitude, camera.bearing, panorama.getLocation().panoId != null);
+                Params params = new Params(panorama.getLocation().position.latitude, panorama.getLocation().position.longitude, camera.bearing, null);
                 notifier.onNext(params);
             }
         });
@@ -157,12 +157,14 @@ public class NSTStreetView extends StreetViewPanoramaView implements OnStreetVie
     }
 
     @NonNull
-    private void emitPositionChangeEvent(double latitude, double longitude, double bearing, boolean isStreetviewAvailable) {
+    private void emitPositionChangeEvent(double latitude, double longitude, double bearing, Boolean isStreetviewAvailable) {
         WritableMap position = new WritableNativeMap();
         position.putDouble("latitude", latitude);
         position.putDouble("longitude", longitude);
         position.putDouble("bearing", bearing);
-        position.putBoolean("isStreetviewAvailable", isStreetviewAvailable);
+        if(isStreetviewAvailable != null) {
+            position.putBoolean("isStreetviewAvailable", isStreetviewAvailable);
+        }
         WritableMap event = Arguments.createMap();
         event.putMap("position", position);
         manager.pushEvent(context, this, "onPositionChange", event);
@@ -201,9 +203,9 @@ public class NSTStreetView extends StreetViewPanoramaView implements OnStreetVie
         double latitude;
         double longitude;
         float bearing;
-        boolean isStreetviewAvailable;
+        Boolean isStreetviewAvailable;
 
-        public Params(double latitude, double longitude, float bearing, boolean isStreetviewAvailable) {
+        public Params(double latitude, double longitude, float bearing, Boolean isStreetviewAvailable) {
             this.latitude = latitude;
             this.longitude = longitude;
             this.bearing = bearing;

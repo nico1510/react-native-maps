@@ -165,7 +165,7 @@ export namespace MapView {
 
 interface PositionChangeEvent {
     position: {
-        isStreetviewAvailable: boolean;
+        isStreetviewAvailable?: boolean;
         latitude: number;
         longitude: number;
         bearing: number;
