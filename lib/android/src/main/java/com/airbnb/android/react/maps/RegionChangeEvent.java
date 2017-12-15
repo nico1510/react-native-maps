@@ -37,10 +37,11 @@ public class RegionChangeEvent extends Event<RegionChangeEvent> {
 
     WritableMap region = new WritableNativeMap();
     LatLng center = bounds.getCenter();
+    Double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
     region.putDouble("latitude", center.latitude);
     region.putDouble("longitude", center.longitude);
     region.putDouble("latitudeDelta", bounds.northeast.latitude - bounds.southwest.latitude);
-    region.putDouble("longitudeDelta", bounds.northeast.longitude - bounds.southwest.longitude);
+    region.putDouble("longitudeDelta", longitudeDelta < 0 ? longitudeDelta + 360 : longitudeDelta);
     region.putDouble("bearing", bearing);
     event.putMap("region", region);
 
