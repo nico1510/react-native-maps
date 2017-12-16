@@ -45,7 +45,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPositionChange, RCTBubblingEventBlock)
 - (void)panoramaView:(GMSPanoramaView *)panoramaView didMoveToPanorama:(GMSPanorama *)panorama nearCoordinate:(CLLocationCoordinate2D)coordinate {
   NSTStreetView *streetView = (NSTStreetView *)panoramaView;
   [streetView updateMarker:coordinate.latitude andLongitude:coordinate.longitude];
-  [streetView didChangePosition:coordinate.latitude andLongitude:coordinate.longitude andBearing:panoramaView.camera.orientation.heading andIsStreetviewAvailable:panorama != (id)[NSNull null]];
+  [streetView didChangePosition:coordinate.latitude andLongitude:coordinate.longitude andBearing:panoramaView.camera.orientation.heading andIsStreetviewAvailable:[NSNumber numberWithBool:YES]];
 }
 
 RCT_EXPORT_METHOD(animateToBearing:(nonnull NSNumber *)reactTag withBearing:(CGFloat)bearing withDuration:(CGFloat)duration)
@@ -64,13 +64,11 @@ RCT_EXPORT_METHOD(animateToBearing:(nonnull NSNumber *)reactTag withBearing:(CGF
 - (void) panoramaView:(GMSPanoramaView *)panoramaView didMoveCamera:(GMSPanoramaCamera *)camera {
   NSTStreetView *streetView = (NSTStreetView *)panoramaView;
   CLLocationCoordinate2D position = panoramaView.panorama.coordinate;
-    BOOL isStreetviewAvailable = panoramaView.panorama != (id)[NSNull null];
   id params = @{
                 @"streetView" : streetView,
                 @"latitude" : [NSNumber numberWithDouble:position.latitude],
                 @"longitude" : [NSNumber numberWithDouble:position.longitude],
                 @"bearing" : [NSNumber numberWithDouble:camera.orientation.heading],
-                @"isStreetviewAvailable" : [NSNumber numberWithBool:isStreetviewAvailable],
               };
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self performSelector:@selector(reportCameraMoveComplete:) withObject:params afterDelay:0.5];
@@ -82,13 +80,12 @@ RCT_EXPORT_METHOD(animateToBearing:(nonnull NSNumber *)reactTag withBearing:(CGF
   NSNumber *latitude = info[@"latitude"];
   NSNumber *longitude = info[@"longitude"];
   NSNumber *bearing = info[@"bearing"];
-  BOOL isStreetviewAvailable = info[@"isStreetviewAvailable"];
-  [streetView didChangePosition:[latitude doubleValue] andLongitude:[longitude doubleValue] andBearing:[bearing doubleValue] andIsStreetviewAvailable:isStreetviewAvailable];
+  [streetView didChangePosition:[latitude doubleValue] andLongitude:[longitude doubleValue] andBearing:[bearing doubleValue] andIsStreetviewAvailable:nil];
 }
 
 - (void) panoramaView:(GMSPanoramaView *)panoramaView error:(NSError *)error onMoveNearCoordinate:(CLLocationCoordinate2D)coordinate {
   NSTStreetView *streetView = (NSTStreetView *)panoramaView;
-  [streetView didChangePosition:coordinate.latitude andLongitude:coordinate.longitude andBearing:panoramaView.camera.orientation.heading andIsStreetviewAvailable:NO];
+  [streetView didChangePosition:coordinate.latitude andLongitude:coordinate.longitude andBearing:panoramaView.camera.orientation.heading andIsStreetviewAvailable:[NSNumber numberWithBool:NO]];
 }
 
 @end

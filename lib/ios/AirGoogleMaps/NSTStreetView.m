@@ -14,27 +14,34 @@ GMSMarker *marker;
 
 #pragma mark GMSPanoramaViewDelegate
 
-- (void)didChangePosition:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude andBearing:(CGFloat) bearing andIsStreetviewAvailable:(BOOL)isStreetviewAvailable
+- (void)didChangePosition:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude andBearing:(CGFloat) bearing andIsStreetviewAvailable:(NSNumber*)isStreetviewAvailable
 {
-  if (!self.onPositionChange) {
-    return;
-  }
-  self.onPositionChange(@{
-                           @"position": @{
-                               @"latitude": @(latitude),
-                               @"longitude": @(longitude),
-                               @"bearing": @(bearing),
-                               @"isStreetviewAvailable": @(isStreetviewAvailable),
-                               }
-                           });
+    if (!self.onPositionChange) {
+        return;
+    }
+    id event = (isStreetviewAvailable != nil) ? @{
+                                                  @"position": @{
+                                                          @"latitude": @(latitude),
+                                                          @"longitude": @(longitude),
+                                                          @"bearing": @(bearing),
+                                                          @"isStreetviewAvailable": @([isStreetviewAvailable boolValue]),
+                                                          }
+                                                  } : @{
+                                                        @"position": @{
+                                                                @"latitude": @(latitude),
+                                                                @"longitude": @(longitude),
+                                                                @"bearing": @(bearing),
+                                                                }
+                                                        };
+    self.onPositionChange(event);
 }
 
 - (void)updateMarker:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude
 {
-  CLLocationCoordinate2D position = {latitude, longitude};
-  marker = [GMSMarker markerWithPosition:position];
-  marker.icon = [GMSMarker markerImageWithColor:[UIColor redColor]];
-  marker.panoramaView = self;
+    CLLocationCoordinate2D position = {latitude, longitude};
+    marker = [GMSMarker markerWithPosition:position];
+    marker.icon = [GMSMarker markerImageWithColor:[UIColor redColor]];
+    marker.panoramaView = self;
 }
 
 @end
