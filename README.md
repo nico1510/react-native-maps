@@ -36,6 +36,8 @@ versions you should add `react` as a dependency in your `package.json`.
 
 [`<MapView.Circle />` Component API](docs/circle.md)
 
+[`<MapView.Overlay />` Component API](docs/overlay.md)
+
 ## General Usage
 
 ```js
@@ -313,6 +315,14 @@ So far, `<Circle />`, `<Polygon />`, and `<Polyline />` are available to pass in
 `<MapView />` component.
 
 ![](http://i.giphy.com/xT77XZCH8JpEhzVcNG.gif) ![](http://i.giphy.com/xT77XZyA0aYeOX5jsA.gif)
+
+
+
+### Gradient Polylines (iOS MapKit only)
+
+Gradient polylines can be created using the `strokeColors` prop of the `<Polyline>` component.
+
+![](https://i.imgur.com/P7UeqAm.png?1)
 
 
 
