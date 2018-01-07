@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
+import com.facebook.react.devsupport.DoubleTapReloadRecognizer;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -29,9 +30,13 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   private static final String REACT_CLASS = "AIRMap";
   private static final int ANIMATE_TO_REGION = 1;
   private static final int ANIMATE_TO_COORDINATE = 2;
-  private static final int FIT_TO_ELEMENTS = 3;
-  private static final int FIT_TO_SUPPLIED_MARKERS = 4;
-  private static final int FIT_TO_COORDINATES = 5;
+  private static final int ANIMATE_TO_VIEWING_ANGLE = 3;
+  private static final int ANIMATE_TO_BEARING = 4;
+  private static final int FIT_TO_ELEMENTS = 5;
+  private static final int FIT_TO_SUPPLIED_MARKERS = 6;
+  private static final int FIT_TO_COORDINATES = 7;
+  private static final int SET_MAP_BOUNDARIES = 8;
+
 
   private final Map<String, Integer> MAP_TYPES = MapBuilder.of(
       "standard", GoogleMap.MAP_TYPE_NORMAL,
@@ -75,6 +80,11 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     view.setRegion(region);
   }
 
+  @ReactProp(name = "initialRegion")
+  public void setInitialRegion(AirMapView view, ReadableMap initialRegion) {
+    view.setInitialRegion(initialRegion);
+  }
+
   @ReactProp(name = "mapType")
   public void setMapType(AirMapView view, @Nullable String mapType) {
     int typeId = MAP_TYPES.get(mapType);
@@ -84,6 +94,35 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   @ReactProp(name = "customMapStyleString")
   public void setMapStyle(AirMapView view, @Nullable String customMapStyleString) {
     view.map.setMapStyle(new MapStyleOptions(customMapStyleString));
+  }
+
+  @ReactProp(name = "mapPadding")
+  public void setMapPadding(AirMapView view, @Nullable ReadableMap padding) {
+    int left = 0;
+    int top = 0;
+    int right = 0;
+    int bottom = 0;
+    double density = (double) view.getResources().getDisplayMetrics().density;
+
+    if (padding != null) {
+      if (padding.hasKey("left")) {
+        left = (int) (padding.getDouble("left") * density);
+      }
+
+      if (padding.hasKey("top")) {
+        top = (int) (padding.getDouble("top") * density);
+      }
+
+      if (padding.hasKey("right")) {
+        right = (int) (padding.getDouble("right") * density);
+      }
+
+      if (padding.hasKey("bottom")) {
+        bottom = (int) (padding.getDouble("bottom") * density);
+      }
+    }
+
+    view.map.setPadding(left, top, right, bottom);
   }
 
   @ReactProp(name = "showsUserLocation", defaultBoolean = false)
@@ -195,6 +234,9 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     Double lng;
     Double lngDelta;
     Double latDelta;
+    Double zoomLevel;
+    Double angle;
+    Double bearing;
     ReadableMap region;
 
     switch (commandId) {
@@ -217,7 +259,22 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
         duration = args.getInt(1);
         lng = region.getDouble("longitude");
         lat = region.getDouble("latitude");
-        view.animateToCoordinate(new LatLng(lat, lng), duration);
+        zoomLevel = region.getDouble("zoomLevel");
+        angle = region.getDouble("angle");
+        bearing = region.getDouble("bearing");
+        view.animateToCoordinate(new LatLng(lat, lng), zoomLevel.floatValue(), angle.floatValue(), bearing.floatValue(), duration);
+        break;
+
+      case ANIMATE_TO_VIEWING_ANGLE:
+        angle = args.getDouble(0);
+        duration = args.getInt(1);
+        view.animateToViewingAngle(angle.floatValue(), duration);
+        break;
+
+      case ANIMATE_TO_BEARING:
+        bearing = args.getDouble(0);
+        duration = args.getInt(1);
+        view.animateToBearing(bearing.floatValue(), duration);
         break;
 
       case FIT_TO_ELEMENTS:
@@ -227,8 +284,13 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
       case FIT_TO_SUPPLIED_MARKERS:
         view.fitToSuppliedMarkers(args.getArray(0), args.getBoolean(1));
         break;
+
       case FIT_TO_COORDINATES:
         view.fitToCoordinates(args.getArray(0), args.getMap(1), args.getBoolean(2));
+        break;
+
+      case SET_MAP_BOUNDARIES:
+        view.setMapBoundaries(args.getMap(0), args.getMap(1));
         break;
     }
   }
@@ -255,17 +317,25 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
 
     return map;
   }
-
-  @Override
+  
   @Nullable
+  @Override
   public Map<String, Integer> getCommandsMap() {
-    return MapBuilder.of(
+    Map<String, Integer> map = MapBuilder.of(
         "animateToRegion", ANIMATE_TO_REGION,
         "animateToCoordinate", ANIMATE_TO_COORDINATE,
+        "animateToViewingAngle", ANIMATE_TO_VIEWING_ANGLE,
+        "animateToBearing", ANIMATE_TO_BEARING,
         "fitToElements", FIT_TO_ELEMENTS,
         "fitToSuppliedMarkers", FIT_TO_SUPPLIED_MARKERS,
         "fitToCoordinates", FIT_TO_COORDINATES
     );
+
+    map.putAll(MapBuilder.of(
+      "setMapBoundaries", SET_MAP_BOUNDARIES
+    ));
+
+    return map;
   }
 
   @Override
@@ -304,7 +374,6 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     context.getJSModule(RCTEventEmitter.class)
         .receiveEvent(view.getId(), name, data);
   }
-
 
   @Override
   public void onDropViewInstance(AirMapView view) {

@@ -23,6 +23,7 @@
 #import "AIRMapCircle.h"
 #import "SMCalloutView.h"
 #import "AIRMapUrlTile.h"
+#import "AIRMapLocalTile.h"
 #import "AIRMapSnapshot.h"
 #import "RCTConvert+AirMap.h"
 
@@ -36,7 +37,7 @@ static NSString *const RCTMapViewKey = @"MapView";
 @end
 
 @implementation AIRMapManager
-
+  
 RCT_EXPORT_MODULE()
 
 - (UIView *)view
@@ -97,7 +98,17 @@ RCT_EXPORT_VIEW_PROPERTY(onMarkerDragStart, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMarkerDrag, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMarkerDragEnd, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCalloutPress, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(initialRegion, MKCoordinateRegion)
+RCT_CUSTOM_VIEW_PROPERTY(initialRegion, MKCoordinateRegion, AIRMap)
+{
+    if (json == nil) return;
+
+    // don't emit region change events when we are setting the initialRegion
+    BOOL originalIgnore = view.ignoreRegionChanges;
+    view.ignoreRegionChanges = YES;
+    [view setInitialRegion:[RCTConvert MKCoordinateRegion:json]];
+    view.ignoreRegionChanges = originalIgnore;
+}
+
 RCT_EXPORT_VIEW_PROPERTY(minZoomLevel, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(maxZoomLevel, CGFloat)
 
@@ -150,6 +161,48 @@ RCT_EXPORT_METHOD(animateToCoordinate:(nonnull NSNumber *)reactTag
             }];
         }
     }];
+}
+
+RCT_EXPORT_METHOD(animateToViewingAngle:(nonnull NSNumber *)reactTag
+                  withAngle:(double)angle
+                  withDuration:(CGFloat)duration)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+      id view = viewRegistry[reactTag];
+      if (![view isKindOfClass:[AIRMap class]]) {
+          RCTLogError(@"Invalid view returned from registry, expecting AIRMap, got: %@", view);
+      } else {
+          AIRMap *mapView = (AIRMap *)view;
+
+          MKMapCamera *mapCamera = [[mapView camera] copy];
+          [mapCamera setPitch:angle];
+
+          [AIRMap animateWithDuration:duration/1000 animations:^{
+              [mapView setCamera:mapCamera animated:YES];
+          }];
+      }
+  }];
+}
+
+RCT_EXPORT_METHOD(animateToBearing:(nonnull NSNumber *)reactTag
+                  withBearing:(CGFloat)bearing
+                  withDuration:(CGFloat)duration)
+{
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+      id view = viewRegistry[reactTag];
+      if (![view isKindOfClass:[AIRMap class]]) {
+          RCTLogError(@"Invalid view returned from registry, expecting AIRMap, got: %@", view);
+      } else {
+          AIRMap *mapView = (AIRMap *)view;
+
+          MKMapCamera *mapCamera = [[mapView camera] copy];
+          [mapCamera setHeading:bearing];
+
+          [AIRMap animateWithDuration:duration/1000 animations:^{
+              [mapView setCamera:mapCamera animated:YES];
+          }];
+      }
+  }];
 }
 
 RCT_EXPORT_METHOD(fitToElements:(nonnull NSNumber *)reactTag
@@ -482,6 +535,8 @@ RCT_EXPORT_METHOD(takeSnapshot:(nonnull NSNumber *)reactTag
         return ((AIRMapCircle *)overlay).renderer;
     } else if ([overlay isKindOfClass:[AIRMapUrlTile class]]) {
         return ((AIRMapUrlTile *)overlay).renderer;
+    } else if ([overlay isKindOfClass:[AIRMapLocalTile class]]) {
+        return ((AIRMapLocalTile *)overlay).renderer;
     } else if([overlay isKindOfClass:[MKTileOverlay class]]) {
         return [[MKTileOverlayRenderer alloc] initWithTileOverlay:overlay];
     } else {
@@ -637,10 +692,10 @@ static int kDragCenterContext;
 
     [self _regionChanged:mapView];
 
-    if (mapView.minZoomLevel != nil && zoomLevel < mapView.minZoomLevel) {
+    if (zoomLevel < mapView.minZoomLevel) {
       [self setCenterCoordinate:[mapView centerCoordinate] zoomLevel:mapView.minZoomLevel animated:TRUE mapView:mapView];
     }
-    else if (mapView.maxZoomLevel != nil && zoomLevel > mapView.maxZoomLevel) {
+    else if (zoomLevel > mapView.maxZoomLevel) {
       [self setCenterCoordinate:[mapView centerCoordinate] zoomLevel:mapView.maxZoomLevel animated:TRUE mapView:mapView];
     }
 
@@ -656,7 +711,10 @@ static int kDragCenterContext;
 
 - (void)mapViewWillStartRenderingMap:(AIRMap *)mapView
 {
-    mapView.hasStartedRendering = YES;
+    if (!mapView.hasStartedRendering) {
+      mapView.onMapReady(@{}); 
+      mapView.hasStartedRendering = YES;
+    }
     [mapView beginLoading];
     [self _emitRegionChangeEvent:mapView continuous:NO];
 }
@@ -664,9 +722,6 @@ static int kDragCenterContext;
 - (void)mapViewDidFinishRenderingMap:(AIRMap *)mapView fullyRendered:(BOOL)fullyRendered
 {
     [mapView finishLoading];
-    [mapView cacheViewIfNeeded];
-    
-    mapView.onMapReady(@{});
 }
 
 #pragma mark Private
@@ -814,7 +869,7 @@ static int kDragCenterContext;
     double centerPixelY = [AIRMapManager latitudeToPixelSpaceY:centerCoordinate.latitude];
 
     // determine the scale value from the zoom level
-    double zoomExponent = 20 - zoomLevel;
+    double zoomExponent = AIRMapMaxZoomLevel - zoomLevel;
     double zoomScale = pow(2, zoomExponent);
 
     // scale the map’s size in pixel space
@@ -850,7 +905,7 @@ static int kDragCenterContext;
                     mapView:(AIRMap *)mapView
 {
     // clamp large numbers to 28
-    zoomLevel = MIN(zoomLevel, 28);
+    zoomLevel = MIN(zoomLevel, AIRMapMaxZoomLevel);
 
     // use the zoom level to compute the region
     MKCoordinateSpan span = [self coordinateSpanWithMapView:mapView centerCoordinate:centerCoordinate andZoomLevel:zoomLevel];
@@ -874,7 +929,7 @@ static int kDragCenterContext;
 	double centerPixelY = [AIRMapManager latitudeToPixelSpaceY:centerCoordinate.latitude];
 
 	// determine the scale value from the zoom level
-	double zoomExponent = 20 - zoomLevel;
+	double zoomExponent = AIRMapMaxZoomLevel - zoomLevel;
 	double zoomScale = pow(2, zoomExponent);
 
 	// scale the map’s size in pixel space
@@ -928,7 +983,7 @@ static int kDragCenterContext;
     CGSize mapSizeInPixels = mapView.bounds.size;
     double zoomScale = scaledMapWidth / mapSizeInPixels.width;
     double zoomExponent = log(zoomScale) / log(2);
-    double zoomLevel = 20 - zoomExponent;
+    double zoomLevel = AIRMapMaxZoomLevel - zoomExponent;
 
     return zoomLevel;
 }
