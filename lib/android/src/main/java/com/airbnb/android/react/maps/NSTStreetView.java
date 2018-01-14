@@ -194,7 +194,7 @@ public class NSTStreetView extends StreetViewPanoramaView implements OnStreetVie
 
     public void animateToBearing(float bearing, long duration) {
         if(this.panorama != null) {
-            this.panorama.animateTo(StreetViewPanoramaCamera.builder().bearing(bearing).build(), duration);
+            this.panorama.animateTo(StreetViewPanoramaCamera.builder().bearing(bearing).tilt(this.panorama.getPanoramaCamera().tilt).build(), duration);
         }
     }
 
