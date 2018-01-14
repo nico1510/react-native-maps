@@ -182,7 +182,7 @@ declare module "react-native-maps" {
     export class Callout extends React.Component<MapCalloutProps, any> { }
 }
 
-interface PositionChangeEvent {
+export interface PositionChangeEvent {
     position: {
         isStreetviewAvailable?: boolean;
         latitude: number;
