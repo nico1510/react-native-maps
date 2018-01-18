@@ -38,6 +38,9 @@ GMSMarker *marker;
 
 - (void)updateMarker:(CLLocationDegrees) latitude andLongitude:(CLLocationDegrees)longitude
 {
+    if(marker != nil) {
+        marker.panoramaView = nil;
+    }
     CLLocationCoordinate2D position = {latitude, longitude};
     marker = [GMSMarker markerWithPosition:position];
     marker.icon = [GMSMarker markerImageWithColor:[UIColor redColor]];
