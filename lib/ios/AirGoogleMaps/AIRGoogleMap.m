@@ -35,7 +35,11 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
 @implementation AIRGoogleMap
 {
   NSMutableArray<UIView *> *_reactSubviews;
-  BOOL _initialRegionSet;
+  MKCoordinateRegion _initialRegion;
+  MKCoordinateRegion _region;
+  BOOL _initialRegionSetOnLoad;
+  BOOL _didCallOnMapReady;
+  BOOL _didMoveToWindow;
 }
 
 - (instancetype)init
@@ -47,7 +51,11 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
     _polylines = [NSMutableArray array];
     _circles = [NSMutableArray array];
     _tiles = [NSMutableArray array];
-    _initialRegionSet = false;
+    _initialRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
+    _region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
+    _initialRegionSetOnLoad = false;
+    _didCallOnMapReady = false;
+    _didMoveToWindow = false;
   }
   return self;
 }
@@ -145,19 +153,38 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
 }
 #pragma clang diagnostic pop
 
+- (void)didMoveToWindow {
+  if (_didMoveToWindow) return;
+  _didMoveToWindow = true;
+
+  if (_initialRegion.span.latitudeDelta != 0.0 &&
+      _initialRegion.span.longitudeDelta != 0.0) {
+    self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:_initialRegion];
+  } else if (_region.span.latitudeDelta != 0.0 &&
+      _region.span.longitudeDelta != 0.0) {
+    self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:_region];
+  }
+
+  [super didMoveToWindow];
+}
+
 - (void)setInitialRegion:(MKCoordinateRegion)initialRegion {
-  if (_initialRegionSet) return;
-  _initialRegionSet = true;
+  if (_initialRegionSetOnLoad) return;
+  _initialRegion = initialRegion;
+  _initialRegionSetOnLoad = true;
   self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:initialRegion];
 }
 
 - (void)setRegion:(MKCoordinateRegion)region {
   // TODO: The JS component is repeatedly setting region unnecessarily. We might want to deal with that in here.
+  _region = region;
   self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self  andMKCoordinateRegion:region];
 }
 
 - (void)didPrepareMap {
-    if (self.onMapReady) self.onMapReady(@{});
+  if (_didCallOnMapReady) return;
+  _didCallOnMapReady = true;
+  if (self.onMapReady) self.onMapReady(@{});
 }
 
 - (BOOL)didTapMarker:(GMSMarker *)marker {
