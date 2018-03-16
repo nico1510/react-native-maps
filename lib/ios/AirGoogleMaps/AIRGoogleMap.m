@@ -273,6 +273,20 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
   if (self.onChange) self.onChange(event);
 }
 
+- (void)didTapPOIWithPlaceID:(NSString *)placeID
+                        name:(NSString *)name
+                    location:(CLLocationCoordinate2D)location {
+  id event = @{@"placeId": placeID,
+               @"name": name,
+               @"coordinate": @{
+                   @"latitude": @(location.latitude),
+                   @"longitude": @(location.longitude)
+                   }
+               };
+
+  if (self.onPoiClick) self.onPoiClick(event);
+}
+
 - (void)idleAtCameraPosition:(GMSCameraPosition *)position {
   id event = @{@"continuous": @NO,
                @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position], [NSNumber numberWithDouble:position.bearing]),
@@ -457,7 +471,7 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
       }
     }
   }
-  
+
   return marker.style.iconUrl;
 }
 
@@ -466,28 +480,28 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
 }
 
 - (void)setKmlSrc:(NSString *)kmlUrl {
-    
+
   _kmlSrc = kmlUrl;
-  
+
   NSURL *url = [NSURL URLWithString:kmlUrl];
   NSData *urlData = nil;
-  
+
   if ([url isFileURL]) {
     urlData = [NSData dataWithContentsOfURL:url];
   } else {
     urlData = [[NSFileManager defaultManager] contentsAtPath:kmlUrl];
   }
-  
+
   GMUKMLParser *parser = [[GMUKMLParser alloc] initWithData:urlData];
   [parser parse];
-  
+
   NSUInteger index = 0;
   NSMutableArray *markers = [[NSMutableArray alloc]init];
 
   for (GMUPlacemark *place in parser.placemarks) {
-        
+
     CLLocationCoordinate2D location =((GMUPoint *) place.geometry).coordinate;
-    
+
     AIRGoogleMapMarker *marker = (AIRGoogleMapMarker *)[[AIRGoogleMapMarkerManager alloc] view];
     if (!marker.bridge) {
       marker.bridge = _bridge;
@@ -500,9 +514,9 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
     marker.imageSrc = [AIRGoogleMap GetIconUrl:place parser:parser];
     marker.layer.backgroundColor = [UIColor clearColor].CGColor;
     marker.layer.position = CGPointZero;
-      
+
     [self insertReactSubview:(UIView *) marker atIndex:index];
-    
+
     [markers addObject:@{@"id": marker.identifier,
                          @"title": marker.title,
                          @"description": marker.subtitle,
@@ -514,7 +528,7 @@ id regionAsJSON(MKCoordinateRegion region, NSNumber* bearing) {
 
     index++;
   }
-  
+
   id event = @{@"markers": markers};
   if (self.onKmlReady) self.onKmlReady(event);
 }

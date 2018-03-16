@@ -9,10 +9,13 @@ npm install react-native-maps --save
 
 ## Get a Google Maps API key
 
-Go to https://developers.google.com/maps/documentation/ios-sdk/get-api-key and get your key.
+Go to https://developers.google.com/maps/documentation/ios-sdk/get-api-key and https://developers.google.com/maps/documentation/android-api/signup to get your keys for both iOS and Android.
 
-Without this key the Google Maps map won't render anything.
+Make sure that Google Maps Android API and Google Maps SDK for iOS are enabled for the current project.
+https://console.developers.google.com/apis/library/maps-android-backend.googleapis.com/
+https://console.developers.google.com/apis/library/maps-ios-backend.googleapis.com
 
+Without an API key the Google Maps map won't render anything.
 
 
 ## iOS - CocoaPods
@@ -42,7 +45,7 @@ target '_YOUR_PROJECT_TARGET_' do
     'RCTText',
     'RCTVibration',
     'RCTWebSocket',
-    'BatchedBridge'
+    'BatchedBridge', # REMOVE THIS if you use RN 0.54+
   ]
 
   pod 'react-native-maps', path: rn_maps_path
@@ -151,7 +154,7 @@ If you've defined *[project-wide properties](https://developer.android.com/studi
 
 3. Specify your Google Maps API Key:
 
-   Add your API key to your manifest file (`android\app\src\main\AndroidManifest.xml`):
+   Add your API key to your manifest file (`android/app/src/main/AndroidManifest.xml`):
 
    ```xml
    <application>
